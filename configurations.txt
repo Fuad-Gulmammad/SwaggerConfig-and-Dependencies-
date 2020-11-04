@@ -1,0 +1,128 @@
+----Dependencies-------
+
+   <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-jdk8 -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+            <version>1.4.0.Final</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.2.0.Final</version>
+        </dependency>
+
+
+<dependency>
+<groupId>com.oracle.ojdbc</groupId>
+<artifactId>ojdbc8</artifactId>
+<version>19.3.0.0</version>
+</dependency>
+
+
+
+     <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+
+
+----application properties----
+
+server.port=8080
+server.servlet.context-path=/company/
+spring.jpa.hibernate.ddl-auto=create-drop
+
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521/databaseName
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+
+
+#spring.datasource.url=jdbc:mysql://localhost:3306/library?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+#spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+#spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+
+------ SwaggerConfig clasi ---------
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+@Configuration
+@EnableSwagger2
+@CrossOrigin
+public class SwaggerConfig {
+    @Bean
+    public Docket apiProject() {
+        return new Docket(DocumentationType.SWAGGER_12)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.company.employee.companyrestapi"))
+                .paths(PathSelectors.any())
+                .build().apiInfo(apiInfo());
+
+    }
+
+    private ApiInfo apiInfo() {
+
+        return new ApiInfoBuilder().title("holdingsystem.az")
+
+                .description("holdingsystem - rest api")
+
+                .contact(new Contact("holdingsystem", "holdingsystem.az", "test@test.az"))
+
+                .version("1.0.0")
+
+                .build();
+
+    }
+
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("PATCH");
+
+        source.registerCorsConfiguration("/**", config);
+        final FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
+
+}
